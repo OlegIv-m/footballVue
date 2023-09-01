@@ -2,10 +2,13 @@
   "name": "thesisfootball",
   "version": "0.1.0",
   "private": true,
+  "homepage": "https://olegiv-m.github.io/gh-pages-demo",
   "scripts": {
     "serve": "vue-cli-service serve",
     "build": "vue-cli-service build",
-    "lint": "vue-cli-service lint"
+    "lint": "vue-cli-service lint",
+    "predeploy": "rm -rf build && npm run build",
+    "deploy": "gh-pages -d dist"
   },
   "dependencies": {
     "core-js": "^3.8.3",

@@ -4,4 +4,5 @@ module.exports = defineConfig({
   devServer: {
     proxy: "http://api.football-data.org",
   },
+  publicPath: process.env.NODE_ENV === "production" ? "/footbalVue/" : "/",
 });
