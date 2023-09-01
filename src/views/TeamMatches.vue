@@ -2,7 +2,8 @@
   <div class="controls">
     <button @click="$router.go(-1)">Back</button>
   </div>
-  <table class="table" v-if="matches">
+  <h1 v-if="loading">Loading...</h1>
+  <table class="table" v-if="matches && !loading">
     <thead>
       <tr>
         <th>Id</th>
@@ -51,6 +52,7 @@ import axios from "axios";
 import { Match } from "../models/types";
 
 const matches = ref<Match[]>([]);
+const loading = ref(false);
 const router = useRouter();
 
 const props = defineProps({
@@ -58,7 +60,10 @@ const props = defineProps({
 });
 const { id } = toRefs(props);
 
+axios.defaults.baseURL = process.env.VUE_APP_PROXY_URL;
+
 async function getTeamMatches(id: number) {
+  loading.value = true;
   try {
     matches.value = (
       await axios.get(`/v4/teams/${id}/matches`, {
@@ -75,6 +80,7 @@ async function getTeamMatches(id: number) {
       setTimeout(() => router.go(-1), 2000);
     }
   }
+  loading.value = false;
 }
 onBeforeMount(() => {
   if (props.id) getTeamMatches(id?.value ?? 0);

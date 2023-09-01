@@ -57,7 +57,7 @@
       </tbody>
     </table>
   </div>
-  <div>
+  <div v-if="team.squad.length">
     <h3>Players</h3>
     <table class="table">
       <thead>
@@ -85,7 +85,6 @@
 <script lang="ts">
 import axios from "axios";
 import { onBeforeMount, ref, defineComponent } from "vue";
-// import { debounce } from "lodash";
 
 import { Team } from "../models/types";
 
@@ -96,8 +95,12 @@ export default defineComponent({
   setup(props) {
     const data = ref<Team>(Object());
     const search = ref("");
+    const loading = ref(false);
+
+    axios.defaults.baseURL = process.env.VUE_APP_PROXY_URL;
 
     async function getTeamById(id: number) {
+      loading.value = true;
       data.value = (
         await axios.get(`/v4/teams/${id}`, {
           headers: {
@@ -106,7 +109,7 @@ export default defineComponent({
           },
         })
       ).data;
-      console.log("teams: ", data.value);
+      loading.value = false;
     }
 
     onBeforeMount(async () => getTeamById(props.id ?? 0));
@@ -115,11 +118,6 @@ export default defineComponent({
       search,
     };
   },
-  // watch: {
-  //   search: debounce(function (value, newValue) {
-  //     console.log(value, newValue);
-  //   }, 200),
-  // },
 });
 </script>
 

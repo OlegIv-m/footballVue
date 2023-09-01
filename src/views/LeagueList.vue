@@ -10,7 +10,9 @@
       </select>
     </div>
   </div>
-  <h1 v-if="!leagues.length">Nothing to show, try another filter.</h1>
+  <h1 v-if="!leagues.length && !loading">
+    Nothing to show, try another filter.
+  </h1>
   <table class="table" v-if="leagues.length">
     <thead>
       <tr>
@@ -52,6 +54,7 @@ export default defineComponent({
   setup() {
     const competitions = ref<Competition[]>([]);
     const areas = ref<Area[]>([]);
+    const loading = ref(false);
     const selectedArea = ref<number[]>([0]);
     const router = useRouter();
 
@@ -59,12 +62,17 @@ export default defineComponent({
       router.push(`league/${id}`);
     }
 
+    axios.defaults.baseURL = process.env.VUE_APP_PROXY_URL;
+
     async function getLeagues(areasIds: number[]) {
+      loading.value = true;
       competitions.value = (
         await axios.get(`/v4/competitions/`, {
           headers: {
             "x-auth-token": "13fffbefd9064d119b0f6f7f78176bfc",
             "Access-Control-Allow-Origin": "*",
+            "Referrer-Policy": "no-referrer",
+            "Sec-Fetch-Mode": "no-cors",
           },
           params: {
             ...(areasIds.length && {
@@ -73,6 +81,7 @@ export default defineComponent({
           },
         })
       ).data.competitions;
+      loading.value = false;
     }
 
     async function getAreas() {
@@ -100,6 +109,7 @@ export default defineComponent({
       areas,
       goToSelectedLeague,
       selectedArea,
+      loading,
     };
   },
 });

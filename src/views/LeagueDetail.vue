@@ -6,7 +6,9 @@
       <input v-model="search" id="search" />
     </div>
   </div>
-  <h1 v-if="!leagues.length">Nothing to show, try another filter.</h1>
+  <h1 v-if="!leagues.length && !loading">
+    Nothing to show, try another filter.
+  </h1>
   <table class="table" v-if="leagues.length">
     <thead>
       <tr>
@@ -35,6 +37,7 @@ import { computed, onBeforeMount, ref, toRefs } from "vue";
 import { Season } from "../models/types";
 const seasons = ref<Season[]>([]);
 const search = ref("");
+const loading = ref(false);
 
 const props = defineProps({
   id: Number,
@@ -42,7 +45,10 @@ const props = defineProps({
 
 const { id } = toRefs(props);
 
+axios.defaults.baseURL = process.env.VUE_APP_PROXY_URL;
+
 async function getSeasons(id: number) {
+  loading.value = true;
   seasons.value = (
     await axios.get(`/v4/competitions/${id}`, {
       headers: {
@@ -51,7 +57,7 @@ async function getSeasons(id: number) {
       },
     })
   ).data.seasons;
-  console.log("teams: ", seasons.value);
+  loading.value = false;
 }
 
 const leagues = computed(() =>

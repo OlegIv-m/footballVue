@@ -6,7 +6,9 @@
       <input v-model="search" id="search" />
     </div>
   </div>
-  <h1 v-if="!filteredTeams.length">Nothing to show, try another filter.</h1>
+  <h1 v-if="!filteredTeams.length && !loading">
+    Nothing to show, try another filter.
+  </h1>
   <table class="table" v-if="filteredTeams.length">
     <thead>
       <tr>
@@ -44,13 +46,17 @@ export default defineComponent({
   setup() {
     const data = ref<Command[]>([]);
     const search = ref("");
+    const loading = ref(false);
     const teams = computed(() =>
       data.value.filter((team) =>
         team.name.toLowerCase().includes(search.value.toLowerCase())
       )
     );
 
+    axios.defaults.baseURL = process.env.VUE_APP_PROXY_URL;
+
     async function getTeams() {
+      loading.value = true;
       data.value = (
         await axios.get("v4/teams", {
           headers: {
@@ -59,7 +65,7 @@ export default defineComponent({
           },
         })
       ).data.teams;
-      console.log("teams: ", data.value);
+      loading.value = false;
     }
 
     onBeforeMount(async () => getTeams());
@@ -68,6 +74,7 @@ export default defineComponent({
       teams: data,
       search,
       filteredTeams: teams,
+      loading,
     };
   },
 });
