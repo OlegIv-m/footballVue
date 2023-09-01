@@ -1,5 +1,10 @@
 import { createRouter, createWebHistory, RouteRecordRaw } from "vue-router";
 import HomeView from "../views/HomeView.vue";
+import LeagueList from "../views/LeagueList.vue";
+import LeagueDetail from "../views/LeagueDetail.vue";
+import TeamsList from "../views/TeamsList.vue";
+import TeamDetail from "../views/TeamDetail.vue";
+import TeamMatches from "../views/TeamMatches.vue";
 
 const routes: Array<RouteRecordRaw> = [
   {
@@ -8,13 +13,37 @@ const routes: Array<RouteRecordRaw> = [
     component: HomeView,
   },
   {
-    path: "/about",
-    name: "about",
-    // route level code-splitting
-    // this generates a separate chunk (about.[hash].js) for this route
-    // which is lazy-loaded when the route is visited.
-    component: () =>
-      import(/* webpackChunkName: "about" */ "../views/AboutView.vue"),
+    path: "/league",
+    name: "league",
+    component: LeagueList,
+  },
+  {
+    path: "/league/:id",
+    name: "leagueDetail",
+    component: LeagueDetail,
+    props: true,
+  },
+  {
+    path: "/teams",
+    name: "teams",
+    component: TeamsList,
+  },
+  {
+    path: "/teams/:id",
+    name: "teamDetail",
+    component: TeamDetail,
+    props: true,
+  },
+  {
+    path: "/teams/:id/matches",
+    name: "teamMatches",
+    component: TeamMatches,
+    props: true,
+  },
+  {
+    path: "/",
+    name: "home",
+    component: HomeView,
   },
 ];
 

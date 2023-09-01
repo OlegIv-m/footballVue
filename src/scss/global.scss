@@ -1,0 +1,21 @@
+.table {
+  width: 100%;
+  
+  background-color: lightgray;
+
+  th,
+  td {
+    text-align: left;
+  }
+  th {
+    background-color: black;
+    color: white;
+  }
+
+  tr {
+    &:hover {
+      background-color: lightgreen;
+      cursor: pointer;
+    }
+  }
+}
