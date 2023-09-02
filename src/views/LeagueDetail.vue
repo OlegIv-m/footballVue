@@ -31,10 +31,12 @@
 </template>
 
 <script setup lang="ts">
-import axios from "axios";
 import { computed, onBeforeMount, ref, toRefs } from "vue";
+import { isAxiosError } from "axios";
 
 import { Season } from "../models/types";
+import axios from "../config/axios";
+
 const seasons = ref<Season[]>([]);
 const search = ref("");
 const loading = ref(false);
@@ -45,18 +47,16 @@ const props = defineProps({
 
 const { id } = toRefs(props);
 
-axios.defaults.baseURL = process.env.VUE_APP_PROXY_URL;
-
 async function getSeasons(id: number) {
   loading.value = true;
-  seasons.value = (
-    await axios.get(`/v4/competitions/${id}`, {
-      headers: {
-        "x-auth-token": "13fffbefd9064d119b0f6f7f78176bfc",
-        "Access-Control-Allow-Origin": "*",
-      },
-    })
-  ).data.seasons;
+  try {
+    seasons.value = (await axios.get(`/v4/competitions/${id}`)).data.seasons;
+  } catch (error) {
+    console.log("catch: ", error);
+    if (isAxiosError(error)) {
+      alert(`${error.response?.data.message}`);
+    }
+  }
   loading.value = false;
 }
 

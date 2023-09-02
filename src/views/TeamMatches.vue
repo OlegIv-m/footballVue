@@ -47,9 +47,10 @@
 <script setup lang="ts">
 import { ref, onBeforeMount, toRefs } from "vue";
 import { useRouter } from "vue-router";
-import axios from "axios";
+import { isAxiosError } from "axios";
 
 import { Match } from "../models/types";
+import axios from "../config/axios";
 
 const matches = ref<Match[]>([]);
 const loading = ref(false);
@@ -59,23 +60,13 @@ const props = defineProps({
   id: Number,
 });
 const { id } = toRefs(props);
-
-axios.defaults.baseURL = process.env.VUE_APP_PROXY_URL;
-
 async function getTeamMatches(id: number) {
   loading.value = true;
   try {
-    matches.value = (
-      await axios.get(`/v4/teams/${id}/matches`, {
-        headers: {
-          "x-auth-token": "13fffbefd9064d119b0f6f7f78176bfc",
-          "Access-Control-Allow-Origin": "*",
-        },
-      })
-    ).data.matches;
+    matches.value = (await axios.get(`/v4/teams/${id}/matches`)).data.matches;
   } catch (error) {
     console.log("catch: ", error);
-    if (axios.isAxiosError(error)) {
+    if (isAxiosError(error)) {
       alert(`${error.response?.data.message}\n You will be redirected back`);
       setTimeout(() => router.go(-1), 2000);
     }

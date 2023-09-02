@@ -44,11 +44,12 @@
 </template>
 
 <script lang="ts">
-import axios from "axios";
 import { defineComponent, onBeforeMount, ref, watch } from "vue";
 import { useRouter } from "vue-router";
+import { isAxiosError } from "axios";
 
 import { Area, Competition } from "../models/types";
+import axios from "../config/axios";
 
 export default defineComponent({
   setup() {
@@ -62,37 +63,42 @@ export default defineComponent({
       router.push(`league/${id}`);
     }
 
-    axios.defaults.baseURL = process.env.VUE_APP_PROXY_URL;
-
     async function getLeagues(areasIds: number[]) {
       loading.value = true;
-      competitions.value = (
-        await axios.get(`/v4/competitions/`, {
-          headers: {
-            "x-auth-token": "13fffbefd9064d119b0f6f7f78176bfc",
-            "Access-Control-Allow-Origin": "*",
-            "Referrer-Policy": "no-referrer",
-            "Sec-Fetch-Mode": "no-cors",
-          },
-          params: {
-            ...(areasIds.length && {
-              areas: areasIds.toString(),
-            }),
-          },
-        })
-      ).data.competitions;
+      try {
+        competitions.value = (
+          await axios.get(`/v4/competitions/`, {
+            params: {
+              ...(areasIds.length && {
+                areas: areasIds.toString(),
+              }),
+            },
+          })
+        ).data.competitions;
+      } catch (error) {
+        console.log("catch: ", error);
+        if (isAxiosError(error)) {
+          alert(
+            `${error.response?.data.message}\n You will be redirected back`
+          );
+          setTimeout(() => router.go(-1), 2000);
+        }
+      }
       loading.value = false;
     }
 
     async function getAreas() {
-      areas.value = (
-        await axios.get("/v4/areas/", {
-          headers: {
-            "x-auth-token": "13fffbefd9064d119b0f6f7f78176bfc",
-            "Access-Control-Allow-Origin": "*",
-          },
-        })
-      ).data.areas;
+      try {
+        areas.value = (await axios.get("/v4/areas/")).data.areas;
+      } catch (error) {
+        console.log("catch: ", error);
+        if (isAxiosError(error)) {
+          alert(
+            `${error.response?.data.message}\n You will be redirected back`
+          );
+          setTimeout(() => router.go(-1), 2000);
+        }
+      }
     }
 
     onBeforeMount(async () => {

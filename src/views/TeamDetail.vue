@@ -57,7 +57,7 @@
       </tbody>
     </table>
   </div>
-  <div v-if="team.squad.length">
+  <div v-if="team.squad?.length">
     <h3>Players</h3>
     <table class="table">
       <thead>
@@ -83,10 +83,11 @@
 </template>
 
 <script lang="ts">
-import axios from "axios";
 import { onBeforeMount, ref, defineComponent } from "vue";
+import { isAxiosError } from "axios";
 
 import { Team } from "../models/types";
+import axios from "../config/axios";
 
 export default defineComponent({
   props: {
@@ -97,18 +98,16 @@ export default defineComponent({
     const search = ref("");
     const loading = ref(false);
 
-    axios.defaults.baseURL = process.env.VUE_APP_PROXY_URL;
-
     async function getTeamById(id: number) {
       loading.value = true;
-      data.value = (
-        await axios.get(`/v4/teams/${id}`, {
-          headers: {
-            "x-auth-token": "13fffbefd9064d119b0f6f7f78176bfc",
-            "Access-Control-Allow-Origin": "*",
-          },
-        })
-      ).data;
+      try {
+        data.value = (await axios.get(`/v4/teams/${id}`)).data;
+      } catch (error) {
+        console.log("catch: ", error);
+        if (isAxiosError(error)) {
+          alert(`${error.response?.data.message}`);
+        }
+      }
       loading.value = false;
     }
 

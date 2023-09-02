@@ -37,10 +37,11 @@
 </template>
 
 <script lang="ts">
-import axios from "axios";
 import { defineComponent, onBeforeMount, ref, computed } from "vue";
+import { isAxiosError } from "axios";
 
 import { Command } from "../models/types";
+import axios from "../config/axios";
 
 export default defineComponent({
   setup() {
@@ -53,18 +54,16 @@ export default defineComponent({
       )
     );
 
-    axios.defaults.baseURL = process.env.VUE_APP_PROXY_URL;
-
     async function getTeams() {
       loading.value = true;
-      data.value = (
-        await axios.get("v4/teams", {
-          headers: {
-            "x-auth-token": "13fffbefd9064d119b0f6f7f78176bfc",
-            "Access-Control-Allow-Origin": "*",
-          },
-        })
-      ).data.teams;
+      try {
+        data.value = (await axios.get("v4/teams")).data.teams;
+      } catch (error) {
+        console.log("catch: ", error);
+        if (isAxiosError(error)) {
+          alert(`${error.response?.data.message}`);
+        }
+      }
       loading.value = false;
     }
 
